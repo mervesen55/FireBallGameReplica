@@ -17,4 +17,4 @@ public class LevelTextController : MonoBehaviour
     {
         text.text = "LEVEL" + GameManager.Instance.Level.ToString();
     }
-}
+} 

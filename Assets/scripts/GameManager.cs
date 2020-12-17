@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,14 +9,19 @@ public class GameManager : MonoBehaviour
     private int index = 0;// for DestroyCapsules method
     private float speed = 20;
     private float CapsuleYPos = 0.80f;
-    private float CapsuleXPos = -0.1f;
-    private float CapsuleZPos = 68.8f;
+    private float CapsuleXPos = 6.81f;
+    private float CapsuleZPos = 40.98f;
     private int i = 0;
+    private int bombXspeed = 0;
     public static GameManager Instance;
+    public GameObject Obstacle1;
+    public GameObject Obstacle2;
+    public GameObject RotationCenter1;
+    public GameObject RotationCenter2;
+    public GameObject bomb;
     public GameObject Tank;
     public GameObject Firstcapsule;
     public GameObject GameOverCanvas;
-    // public GameObject GameCompletedCanvas;
     public int stage = 1;
     public int Level = 1;
     public int NumberOfCapsules = 54;
@@ -26,14 +32,15 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Instance = this;
-        Level = 1;
+       
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !TankController.instance.TankIsMoving)
         {
+            
             spawnBomb();
         }
 
@@ -65,10 +72,14 @@ public class GameManager : MonoBehaviour
 
     void spawnBomb()
     {
-        var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.transform.position = new Vector3(Tank.transform.position.x, 1.5f, Tank.transform.position.z);
-        sphere.AddComponent<Rigidbody>().velocity = new Vector3(0, 0, speed);
-        Destroy(sphere, 2f);//if bomb miss the capsules, we need to destroy it anyway
+        //Vector3 pos = new Vector3(Tank.transform.position.x, 1f, Tank.transform.position.z);
+        //GameObject Bomb = Instantiate(bomb, pos, Quaternion.identity);
+        var Bomb = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        Bomb.transform.position = new Vector3(Tank.transform.position.x, 1f, Tank.transform.position.z);
+        Bomb.transform.position += transform.forward * Time.deltaTime * speed;
+        Bomb.AddComponent<Rigidbody>().velocity = new Vector3(bombXspeed, 0, speed);
+        Bomb.GetComponent<Rigidbody>().useGravity = false;
+        Destroy(Bomb, 2f);//if bomb miss the capsules, we need to destroy it anyway
     }
 
     public void DestroyCapsules()
@@ -84,7 +95,13 @@ public class GameManager : MonoBehaviour
 
         }
         if (index == NumberOfCapsules)
+        {
             SetLevels();
+            TankController.instance.RestartTank();
+            DestroyObstacle();
+            
+        }
+            
 
     }
 
@@ -92,11 +109,12 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("GAME OVER");
         GameOverCanvas.SetActive(true);
-
-
     }
 
-
+    public void Replay()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
 
     public void SetSteps(int StepNumber)
@@ -104,12 +122,15 @@ public class GameManager : MonoBehaviour
         stage += 1;
         if (StepNumber == 1)
         {
-            CapsuleZPos = 68.8f;
-
+            CapsuleZPos = 40.98f;
+            CapsuleXPos = 6.81f;
+            bombXspeed = 0;
         }
         if (StepNumber == 2)
         {
-            CapsuleZPos = 198.8f;
+            CapsuleZPos = 75.95f;
+            CapsuleXPos = -8f;
+            bombXspeed = -8;
             ResetValues();
 
         }
@@ -126,7 +147,6 @@ public class GameManager : MonoBehaviour
         {
             Level += 1;
             Debug.Log("LEVEL WON");
-            //GameCompletedCanvas.SetActive(true);
             ResetValues();
             TankController.instance.setTankPosition();
             TankController.instance.stage1HasStarted = false;
@@ -145,4 +165,24 @@ public class GameManager : MonoBehaviour
 
     }
 
+
+    public void spawnObstacle(int stage)
+    {
+        if (stage == 1)
+        {
+            Debug.Log("hiyır");
+            Obstacle1.SetActive(true);
+        }
+
+
+        if (stage == 2)
+            Obstacle2.SetActive(true);
+    }
+
+
+    public void DestroyObstacle()
+    {
+        Obstacle1.SetActive(false);
+        Obstacle2.SetActive(false);
+    }
 }

@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Stage1Trigger
   - Stage2Trigger
+  - intersection
+  - startPoint
+  - Tank
   layers:
   - Default
   - TransparentFX

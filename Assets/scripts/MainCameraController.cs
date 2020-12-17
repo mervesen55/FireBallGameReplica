@@ -18,4 +18,10 @@ public class MainCameraController : MonoBehaviour
     {
         transform.position = Tank.transform.position + setoff;
     }
+
+    //public void RotateCamera()
+    //{
+    //    transform.Rotate(0, -10, 0);
+        
+    //}
 }
